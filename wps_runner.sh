@@ -6,6 +6,7 @@ function msg() {
 
 DEFAULT_DATA_HOME="${HOME}/.local/share"
 DISABLE_FORCE_LOGIN_DELAY="${DISABLE_FORCE_LOGIN_DELAY:-3}"
+KSO_KILL_CLOUDSVR_AFTERWARDS_DELAY="${KSO_KILL_CLOUDSVR_AFTERWARDS_DELAY:-3}"
 CONF_FILE="${XDG_CONFIG_HOME}/Kingsoft/Office.conf"
 BACKUPS_SUBDIR="Kingsoft/office6/data/backup"
 OLD_BACKUP_PATH="${DEFAULT_DATA_HOME}/${BACKUPS_SUBDIR}"
@@ -46,4 +47,12 @@ fi
 # Disable force login after a delay
 sleep ${DISABLE_FORCE_LOGIN_DELAY} && sed -i "s/enableForceLogin=true/enableForceLogin=false/" "$XDG_CONFIG_HOME/Kingsoft/Office.conf" &
 
-exec /app/extra/usr/bin/$(basename "$0") "$@"
+/app/extra/usr/bin/$(basename "$0") "$@"
+
+sleep ${KSO_KILL_CLOUDSVR_AFTERWARDS_DELAY}
+
+if [[ ! -z "${KSO_KILL_CLOUDSVR_AFTERWARDS}" ]]; then
+    if ! pidof wps wpp et wpspdf; then
+        pkill -f wpscloudsvr
+    fi
+fi
