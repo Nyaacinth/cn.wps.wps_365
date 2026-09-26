@@ -47,12 +47,14 @@ fi
 # Disable force login after a delay
 sleep ${DISABLE_FORCE_LOGIN_DELAY} && sed -i "s/enableForceLogin=true/enableForceLogin=false/" "$XDG_CONFIG_HOME/Kingsoft/Office.conf" &
 
-/app/extra/usr/bin/$(basename "$0") "$@"
+if [[ -z "${KSO_KILL_CLOUDSVR_AFTERWARDS}" ]]; then
+    exec /app/extra/usr/bin/$(basename "$0") "$@"
+else
+    /app/extra/usr/bin/$(basename "$0") "$@"
 
-sleep ${KSO_KILL_CLOUDSVR_AFTERWARDS_DELAY}
+    sleep ${KSO_KILL_CLOUDSVR_AFTERWARDS_DELAY}
 
-if [[ ! -z "${KSO_KILL_CLOUDSVR_AFTERWARDS}" ]]; then
-    if ! pidof wps wpp et wpspdf; then
+    if ! pidof wps wpp et wpspdf xiezuo; then
         pkill -f wpscloudsvr
     fi
 fi
